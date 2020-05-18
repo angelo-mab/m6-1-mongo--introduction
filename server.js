@@ -31,7 +31,7 @@ express()
   .get('/ex-2/greetings', getGreetings)
   .delete('/ex-2/greeting/:_id', deleteGreeting)
   .put('/ex-2/greeting/:_id', updateGreeting)
-  
+
   // handle 404s
   .use((req, res) => res.status(404).type('txt').send('🤷‍♂️'))
 
