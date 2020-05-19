@@ -11,12 +11,13 @@ const createGreeting = async (req, res) => {
     // connect
     await client.connect();
 
-    // declare db - 'exercises' as database
-    const db = client.db('exercise');
+    // declare db - 'exercise-two' as database
+    const db = client.db('exercise-two');
 
     // create new collection 'greetings'
     const r = await db.collection('greetings').insertOne(req.body);
-    assert.equal(1, r.insertedCount); // r.isertedCount - to validate that database received our document and added it to the colelction
+    assert.equal(1, r.insertedCount);
+    // r.insertedCount - to validate that database received our document and added it to the collection
 
     res.status(201).json({ status: 201, data: req.body });
 
@@ -36,9 +37,9 @@ const getGreeting = async (req, res) => {
   });
 
   await client.connect();
-  const db = client.db('exercise');
+  const db = client.db('exercises');
 
-  db.collection('greetings').findOne({ _id: _id.toUpperCase() }, (err, result) => {
+  db.collection('two').findOne({ _id: _id.toUpperCase() }, (err, result) => {
     result
       ? res.status(200).json({ status: 200, _id, data: result })
       : res.status(404).json({ status: 404, _id, data: 'Not Found' });
@@ -58,10 +59,10 @@ const getGreetings = async (req, res) => {
   await client.connect();
   console.log('hello again');
 
-  const db = client.db('exercise');
+  const db = client.db('exercises');
 
-  db.collection('greetings')
-    .find()  //get back _all_ fo the doc in the 'two' collection
+  db.collection('two')
+    .find()  //get back _all_ of the doc in the 'two' collection
     .toArray((err, result) => {
       if (result.length) {
         console.log(result.length);
@@ -74,21 +75,35 @@ const getGreetings = async (req, res) => {
       } else {
         res.status(404).json({ status: 404, data: 'Not Found' });
       }
+      // res.status(200).json({ status: 200, data: result });
       client.close();
     })
+
+  /* 
+  Note:
+  Using .find() without passing anything to it will return _all_ the documents in the collection
+  
+  It isn't good practive to return _all_ of the data.
+    What would happen if there are thousands of document in the collection?
+
+    Instead we set up some limits
+  */
 };
 
 const deleteGreeting = async (req, res) => {
+  const { _id } = req.params;
+
   const client = new MongoClient('mongodb://localhost:27017', {
     useUnifiedTopology: true,
   });
   try {
     await client.connect();
 
-    const db = client.db('exercise');
+    const db = client.db('exercises');
 
-    const r = await db.collection('greetings').deleteOne(req.body);
-    assert.equal(1, r.deletedCount)
+    const r = await db.collection('two').deleteOne({ _id: _id.toUpperCase() });
+    assert.equal(1, r.deletedCount);
+    //deleteCount interesting....
     res.status(204).json({ status: 204, _id });
   } catch (err) {
     console.log(err);
@@ -101,9 +116,14 @@ const deleteGreeting = async (req, res) => {
 
 const updateGreeting = async (req, res) => {
   const { _id } = req.params;
+  const { hello } = req.body; // takes the 
 
   if (!hello) {
-    res.status(400).json({ status: 400, data: req.body, message: 'Only "hello may be updated.', });
+    res.status(400).json({
+      status: 400,
+      data: req.body,
+      message: 'Only "hello may be updated.',
+    });
     return;
   }
   // $set expects the user to pass JSON in the body of the query
@@ -114,13 +134,13 @@ const updateGreeting = async (req, res) => {
 
   try {
     await client.connect();
-    const db = client.db('exercise');
+    const db = client.db('exercises');
 
     const query = { _id };
-    const newValues = { $set: { ...req.body } };
+    const newValues = { $set: { hello } };
 
     //.updateOne() takes 2 objects as arguments
-    const r = await db.collection('greetings').updateOne(query, newValues);
+    const r = await db.collection('two').updateOne(query, newValues);
     assert.equal(1, r.matchedCount);
     assert.equal(1, r.modifiedCount);
 
@@ -129,10 +149,10 @@ const updateGreeting = async (req, res) => {
     console.log(err.stack);
     res.status(500).json({ status: 500, message: 'err' });
   }
-  // const db = client.db('exercise');
+  client.close();
 
   // res.status(200).json({ status: 200, _id, data: req.body });
-
+  // res.status(200).json({ status: 200, _id, data: req.body })
 }
 
 

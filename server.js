@@ -13,7 +13,7 @@ const {
   getGreetings,
   deleteGreeting,
   updateGreeting,
-} = require('./exercises/exercise-2');
+} = require('./exercises/exercise-2.1');
 
 express()
   .use(morgan('tiny'))
@@ -28,7 +28,7 @@ express()
   // exercise 2
   .post('/ex-2/greeting', createGreeting)
   .get('/ex-2/greeting/:_id', getGreeting)
-  .get('/ex-2/greetings', getGreetings)
+  .get('/ex-2/greeting', getGreetings)
   .delete('/ex-2/greeting/:_id', deleteGreeting)
   .put('/ex-2/greeting/:_id', updateGreeting)
 
