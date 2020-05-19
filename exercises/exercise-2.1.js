@@ -152,7 +152,7 @@ const updateGreeting = async (req, res) => {
   client.close();
 
   // res.status(200).json({ status: 200, _id, data: req.body });
-  // res.status(200).json({ status: 200, _id, data: req.body })
+  // res.status(200).json({ status: 200, _id, data: req.body });
 }
 
 
